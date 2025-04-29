@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Resume Parser{% endblock %}</title>
+    
+    <!-- Include modern CSS framework (Tailwind CSS) via CDN for clean UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6E59A5',
+                        background: '#F1F0FB',
+                        accent: '#8B5CF6',
+                        text: '#221F26',
+                        card: '#FFFFFF',
+                        success: '#22C55E',
+                        error: '#EF4444',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #F1F0FB;
+            color: #221F26;
+        }
+        .btn-primary {
+            background-color: #6E59A5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #5D4B8C;
+        }
+        .success-badge {
+            background-color: #22C55E;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .error-badge {
+            background-color: #EF4444;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .timeline-container {
+            position: relative;
+            padding-left: 1.5rem;
+            border-left: 2px solid #6E59A5;
+            margin-left: 1rem;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: -1.68rem;
+            top: 0.25rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background-color: #8B5CF6;
+            border: 2px solid #F1F0FB;
+        }
+        .skill-tag {
+            display: inline-block;
+            background-color: #F1F0FB;
+            color: #6E59A5;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-primary">
+                    <a href="{{ url_for('index') }}">Resume Parser</a>
+                </h1>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-md {% if category == 'error' %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Page content -->
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white shadow-inner mt-8 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-500 text-sm">
+                Resume Parser for Recruiters &copy; 2025
+            </p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script>
+        // Hide flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const flashMessages = document.querySelectorAll('[class*="bg-red-100"], [class*="bg-green-100"]');
+                flashMessages.forEach(msg => {
+                    msg.style.opacity = '0';
+                    msg.style.transition = 'opacity 0.5s';
+                    setTimeout(() => msg.style.display = 'none', 500);
+                });
+            }, 5000);
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

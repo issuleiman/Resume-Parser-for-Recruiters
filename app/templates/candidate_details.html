@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}{{ candidate.name }} | Resume Parser{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-gray-900">Candidate Profile</h1>
+    <div class="flex items-center">
+        <a href="{{ url_for('index') }}" class="text-primary hover:text-accent flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Basic Information -->
+    <div class="lg:col-span-1">
+        <div class="card mb-8">
+            <div class="flex justify-between items-start">
+                <h2 class="text-xl font-semibold text-primary mb-4">Basic Information</h2>
+                <span class="{% if candidate.parsing_status == 'success' %}success-badge{% else %}error-badge{% endif %}">
+                    {% if candidate.parsing_status == 'success' %}
+                        ✅ Parsed
+                    {% else %}
+                        ❌ Error
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">{{ candidate.name }}</h3>
+                    {% if candidate.parsing_status == 'error' %}
+                        <p class="text-red-600 text-sm mt-1">{{ candidate.parsing_error }}</p>
+                    {% endif %}
+                </div>
+                
+                {% if candidate.email %}
+                <div>
+                    <p class="text-sm text-gray-500">Email</p>
+                    <p class="text-gray-900">{{ candidate.email }}</p>
+                </div>
+                {% endif %}
+                
+                {% if candidate.phone %}
+                <div>
+                    <p class="text-sm text-gray-500">Phone</p>
+                    <p class="text-gray-900">{{ candidate.phone }}</p>
+                </div>
+                {% endif %}
+                
+                {% if candidate.address %}
+                <div>
+                    <p class="text-sm text-gray-500">Location</p>
+                    <p class="text-gray-900">{{ candidate.address }}</p>
+                </div>
+                {% endif %}
+                
+                <div>
+                    <p class="text-sm text-gray-500">Uploaded on</p>
+                    <p class="text-gray-900">{{ candidate.upload_timestamp.strftime('%B %d, %Y at %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Skills -->
+        {% if candidate.skills and candidate.parsing_status == 'success' %}
+        <div class="card">
+            <h2 class="text-xl font-semibold text-primary mb-4">Skills</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for skill in candidate.skills %}
+                    {% if skill.lower() in "python javascript java typescript c++ c# react angular vue nodejs express django flask spring css html".split() %}
+                        <span class="skill-tag bg-blue-100 text-blue-800">{{ skill }}</span>
+                    {% elif skill.lower() in "sql mysql postgresql mongodb database oracle cassandra redis".split() %}
+                        <span class="skill-tag bg-green-100 text-green-800">{{ skill }}</span>
+                    {% elif skill.lower() in "aws azure gcp cloud docker kubernetes jenkins terraform ansible devops".split() %}
+                        <span class="skill-tag bg-purple-100 text-purple-800">{{ skill }}</span>
+                    {% elif skill.lower() in "machine learning artificial intelligence data science tensorflow pytorch nlp neural networks".split() %}
+                        <span class="skill-tag bg-yellow-100 text-yellow-800">{{ skill }}</span>
+                    {% elif skill.lower() in "leadership management communication teamwork agile scrum project management".split() %}
+                        <span class="skill-tag bg-pink-100 text-pink-800">{{ skill }}</span>
+                    {% else %}
+                        <span class="skill-tag">{{ skill }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Main Content -->
+    <div class="lg:col-span-2">
+        {% if candidate.parsing_status == 'success' %}
+            <!-- Work Experience -->
+            {% if candidate.work_experience %}
+            <div class="card mb-8">
+                <h2 class="text-xl font-semibold text-primary mb-4">Work Experience</h2>
+                <div class="timeline-container">
+                    {% for exp in candidate.work_experience %}
+                    <div class="timeline-item">
+                        <div class="flex flex-col">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
+                                <h3 class="text-lg font-medium text-gray-900">{{ exp.title }}</h3>
+                                {% if exp.date_range %}
+                                <span class="text-sm text-gray-500">{{ exp.date_range }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-primary font-medium">{{ exp.company }}</p>
+                            {% if exp.responsibilities %}
+                            <ul class="list-disc pl-5 mt-2 space-y-1">
+                                {% for resp in exp.responsibilities %}
+                                <li class="text-gray-700 text-sm">{{ resp }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Education -->
+            {% if candidate.education %}
+            <div class="card mb-8">
+                <h2 class="text-xl font-semibold text-primary mb-4">Education</h2>
+                <div class="timeline-container">
+                    {% for edu in candidate.education %}
+                    <div class="timeline-item">
+                        <div class="flex flex-col">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
+                                <h3 class="text-lg font-medium text-gray-900">{{ edu.degree }}</h3>
+                                {% if edu.date_range %}
+                                <span class="text-sm text-gray-500">{{ edu.date_range }}</span>
+                                {% elif edu.year %}
+                                <span class="text-sm text-gray-500">{{ edu.year }}</span>
+                                {% endif %}
+                            </div>
+                            {% if edu.institution %}
+                            <p class="text-primary font-medium">{{ edu.institution }}</p>
+                            {% endif %}
+                            
+                            {% if edu.major %}
+                            <p class="text-gray-700 italic">{{ edu.major }}</p>
+                            {% endif %}
+                            
+                            {% if edu.gpa %}
+                            <p class="text-gray-600 text-sm mt-1">GPA: {{ edu.gpa }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Projects -->
+            {% if candidate.projects %}
+            <div class="card mb-8">
+                <h2 class="text-xl font-semibold text-primary mb-4">Projects</h2>
+                {% for project in candidate.projects %}
+                <div class="mb-6 last:mb-0">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
+                        <h3 class="text-lg font-medium text-gray-900">{{ project.name }}</h3>
+                        {% if project.timeframe %}
+                        <span class="text-sm text-gray-500">{{ project.timeframe }}</span>
+                        {% endif %}
+                    </div>
+                    {% if project.role %}
+                    <p class="text-gray-700 italic">Role: {{ project.role }}</p>
+                    {% endif %}
+                    {% if project.technologies %}
+                    <p class="text-primary font-medium text-sm">{{ project.technologies }}</p>
+                    {% endif %}
+                    {% if project.description %}
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        {% for desc in project.description %}
+                        <li class="text-gray-700 text-sm">{{ desc }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Certifications -->
+            {% if candidate.certifications %}
+            <div class="card mb-8">
+                <h2 class="text-xl font-semibold text-primary mb-4">Certifications</h2>
+                <ul class="list-disc pl-5 space-y-1">
+                    {% for cert in candidate.certifications %}
+                    <li class="text-gray-700">{{ cert }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Awards/Achievements -->
+            {% if candidate.awards %}
+            <div class="card">
+                <h2 class="text-xl font-semibold text-primary mb-4">Awards & Achievements</h2>
+                <ul class="list-disc pl-5 space-y-1">
+                    {% for award in candidate.awards %}
+                    <li class="text-gray-700">{{ award }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Error State -->
+            <div class="card bg-red-50 border border-red-200">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Error Parsing Resume
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p>{{ candidate.parsing_error }}</p>
+                        </div>
+                        <div class="mt-4">
+                            <div class="-mx-2 -my-1.5 flex">
+                                <a href="{{ url_for('index') }}" class="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100">
+                                    Return to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
